@@ -23,5 +23,12 @@ namespace CardGame
             var Rummy = new Rummy();
             Rummy.Show();
         }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            this.Hide();
+            var Rules = new PlayerStats();
+            Rules.Show();
+        }
     }
 }

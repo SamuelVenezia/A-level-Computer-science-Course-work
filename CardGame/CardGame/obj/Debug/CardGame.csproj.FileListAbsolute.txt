@@ -9,3 +9,27 @@ C:\Users\haloo_000\Documents\Visual Studio 2017\Projects\CardGame\CardGame\obj\D
 C:\Users\haloo_000\Documents\Visual Studio 2017\Projects\CardGame\CardGame\obj\Debug\CardGame.exe
 C:\Users\haloo_000\Documents\Visual Studio 2017\Projects\CardGame\CardGame\obj\Debug\CardGame.pdb
 C:\Users\haloo_000\Documents\Visual Studio 2017\Projects\CardGame\CardGame\obj\Debug\CardGame.Rummy.resources
+C:\Users\Omust\Documents\Visual Studio 2017\Projects\CardGame\CardGame\bin\Debug\CardGame.exe.config
+C:\Users\Omust\Documents\Visual Studio 2017\Projects\CardGame\CardGame\bin\Debug\CardGame.exe
+C:\Users\Omust\Documents\Visual Studio 2017\Projects\CardGame\CardGame\bin\Debug\CardGame.pdb
+C:\Users\Omust\Documents\Visual Studio 2017\Projects\CardGame\CardGame\obj\Debug\CardGame.csprojAssemblyReference.cache
+C:\Users\Omust\Documents\Visual Studio 2017\Projects\CardGame\CardGame\obj\Debug\CardGame.MMenu.resources
+C:\Users\Omust\Documents\Visual Studio 2017\Projects\CardGame\CardGame\obj\Debug\CardGame.Properties.Resources.resources
+C:\Users\Omust\Documents\Visual Studio 2017\Projects\CardGame\CardGame\obj\Debug\CardGame.Rummy.resources
+C:\Users\Omust\Documents\Visual Studio 2017\Projects\CardGame\CardGame\obj\Debug\CardGame.csproj.GenerateResource.cache
+C:\Users\Omust\Documents\Visual Studio 2017\Projects\CardGame\CardGame\obj\Debug\CardGame.csproj.CoreCompileInputs.cache
+C:\Users\Omust\Documents\Visual Studio 2017\Projects\CardGame\CardGame\obj\Debug\CardGame.exe
+C:\Users\Omust\Documents\Visual Studio 2017\Projects\CardGame\CardGame\obj\Debug\CardGame.pdb
+C:\Users\Omust\Documents\Visual Studio 2017\Projects\CardGame\CardGame\obj\Debug\CardGame.PlayerStats.resources
+E:\Mk II\CardGame\CardGame\bin\Debug\CardGame.exe.config
+E:\Mk II\CardGame\CardGame\bin\Debug\CardGame.exe
+E:\Mk II\CardGame\CardGame\bin\Debug\CardGame.pdb
+E:\Mk II\CardGame\CardGame\obj\Debug\CardGame.MMenu.resources
+E:\Mk II\CardGame\CardGame\obj\Debug\CardGame.PlayerStats.resources
+E:\Mk II\CardGame\CardGame\obj\Debug\CardGame.Properties.Resources.resources
+E:\Mk II\CardGame\CardGame\obj\Debug\CardGame.Rummy.resources
+E:\Mk II\CardGame\CardGame\obj\Debug\CardGame.csproj.GenerateResource.cache
+E:\Mk II\CardGame\CardGame\obj\Debug\CardGame.csproj.CoreCompileInputs.cache
+E:\Mk II\CardGame\CardGame\obj\Debug\CardGame.exe
+E:\Mk II\CardGame\CardGame\obj\Debug\CardGame.pdb
+E:\Mk II\CardGame\CardGame\obj\Debug\CardGame.csprojAssemblyReference.cache

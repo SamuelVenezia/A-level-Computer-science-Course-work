@@ -54,4 +54,37 @@ namespace CardGame
             _Location = new Point(120,130);
         }
     }
+    class RuleCards
+    {
+        //Attributes of the Rules
+        protected int _SizeY;
+        protected int _SizeX;
+        protected Point _Location;
+        protected Image _Image;
+        //Get and sets
+        public int SizeY
+        {
+            get { return _SizeY; }
+        }
+        public int SizeX
+        {
+            get { return _SizeX; }
+        }
+        public Point Location
+        {
+            get { return _Location; }
+            set { _Location = value; }
+        }
+        public Image Image
+        {
+            get { return _Image; }
+            set { _Image = value; }
+        }
+        //Constructors
+        public RuleCards()
+        {
+            _SizeY = 200;
+            _SizeX = 200;
+        }
+    }
 }

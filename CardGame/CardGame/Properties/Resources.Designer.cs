@@ -403,6 +403,16 @@ namespace CardGame.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap Rules_image {
+            get {
+                object obj = ResourceManager.GetObject("Rules_image", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap SevenClubs {
             get {
                 object obj = ResourceManager.GetObject("SevenClubs", resourceCulture);

@@ -10,22 +10,32 @@ using System.Windows.Forms;
 
 namespace CardGame
 {
-    
-
     public partial class Rummy : Form
     {
+       // NeuralNetwork NN;
+        Random RNG = new Random();
+        Cards[] DOC = new Cards[52];
+        Cards[] P1Cards = new Cards[7];
+        Cards[] P2Cards = new Cards[7];
+        Cards Back = new Cards();
+        Cards LimboCard = new Cards();
+        List<Cards> DeckDis = new List<Cards>();
+        List<Cards> StackDis = new List<Cards>();
+        string[] NAMEHOUSE = new string[8];
+        int[] P1No = new int[7];
+        int[] P2No = new int[7];
+        List<int> Deck = new List<int>();
+        List<int> Stack = new List<int>();
+        string PriorCardName = "";
+        int Limbo = 0;
+        int NoOfMoves = 0;
+        float Player1Points;
+        float Player2Points;
+        bool PkFmDk = true;
+        bool DeckVal = false;
         public Rummy()
         {
-            Cards[] DOC = new Cards[52];
-            Cards[] P1Cards = new Cards[7];
-            Cards[] P2Cards = new Cards[7];
-            Cards Back = new Cards();
-            List<Cards> DeckDis = new List<Cards>();
-            List<Cards> StackDis = new List<Cards>();
-            int[] P1No = new int[7];
-            int[] P2No = new int[7];
-            List<int> Deck = new List<int>();
-            List<int> Stack = new List<int>();
+
             for (int i = 0; i < 52; i++)
             {
                 DOC[i] = new Cards();
@@ -40,31 +50,30 @@ namespace CardGame
             }
             Back.Image = Properties.Resources.BackCard;
             DeclareCards(ref DOC); //Sets up the images of each card.
-            SepCardsPlayers(ref P1No, ref P2No);
+            DecPlayerCards(ref P1No, ref P2No); //Seporates players opening cards from the deck.
             PlayersCards(ref DOC, P1Cards, ref P1No, ref P2No, P2Cards);
             DeclareDeck(ref Deck, ref P1No, ref P2No); //Finds the cards for the deck
-            DeckCards(ref DOC, ref Deck,ref DeckDis);
-            StackCards(ref Stack, ref StackDis, ref DeckDis, ref Deck, ref DOC);
+            DeckCards(ref DOC, ref Deck, ref DeckDis);
+            StackCards(ref Stack, ref StackDis, ref DeckDis, ref Deck, ref DOC, ref RNG);
+            Back.Location = new Point(120, 130);
             InitializeComponent();
-            Bitmap bmp = new Bitmap(PicGame.Width,PicGame.Height);
+            ComboStart(ref NAMEHOUSE);
+            Bitmap bmp = new Bitmap(PicGame.Width, PicGame.Height);
             using (Graphics g = Graphics.FromImage(bmp))
             {
                 for (int i = 0; i < 7; i++)
-                {//Stack has to be 115 for the location.
-                    g.DrawImage(P1Cards[i].Image,P1Cards[i].Location.X,P1Cards[i].Location.Y,P1Cards[i].SizeY,P1Cards[i].SizeX);
+                {
+                    g.DrawImage(P1Cards[i].Image, P1Cards[i].Location.X, P1Cards[i].Location.Y, P1Cards[i].SizeY, P1Cards[i].SizeX);
                     g.DrawImage(Back.Image, P2Cards[i].Location.X, P2Cards[i].Location.Y, P2Cards[i].SizeY, P2Cards[i].SizeX);
                 }
-                for (int i = 0; i < Deck.Count; i++)
-                {
-                    g.DrawImage(Back.Image, DeckDis[i].Location.X, DeckDis[i].Location.Y, DeckDis[i].SizeY, DeckDis[i].SizeX);
-                }
+                g.DrawImage(Back.Image, Back.Location.X, Back.Location.Y, Back.SizeY, Back.SizeX);
                 for (int i = 0; i < Stack.Count; i++)
                 {
                     g.DrawImage(StackDis[i].Image, StackDis[i].Location.X, StackDis[i].Location.Y, StackDis[i].SizeY, StackDis[i].SizeX);
                 }
-       
+
             }
-            PicGame.Image = bmp;   
+            PicGame.Image = bmp;
         }
         void DeclareCards(ref Cards[] DOC)
         {
@@ -76,7 +85,7 @@ namespace CardGame
                 }
                 else if (i >= 13 && i < 26)
                 {
-   
+
                     DOC[i].House = "Hearts";
                 }
                 else if (i >= 26 && i < 39)
@@ -138,7 +147,7 @@ namespace CardGame
                 else if (i == 12 || i == 25 || i == 38 || i == 51)
                 {
                     DOC[i].Name = "King";
-                }   
+                }
             }
             //Declare of the Image section
             //1
@@ -197,133 +206,70 @@ namespace CardGame
             DOC[49].Image = Properties.Resources.JackSpades;
             DOC[50].Image = Properties.Resources.QueenSpades;
             DOC[51].Image = Properties.Resources.KingSpades;
-
-
-
-
-
-        }
-        void SepCardsPlayers(ref int[] P1No, ref int[] P2No)
+        } //Pseudo-Code Written
+        void DecPlayerCards(ref int[] P1No, ref int[] P2No)
         {
-            List<int> Dump = new List<int>();
-            int Deck = 0;
-            int RC = 0;
+            List<int> CardsAv = new List<int>();
+            int PlCard;
             Random RNG = new Random();
-            for (int i = 0; i < 2; i++) //Multiple Players
-              //Randomly assigning the numbers for the 14 individual cards.
-            { //These should be unique.
-                for (int j = 0; j < 7; j++) //Number of cards in the players hands.
+            for (int i = 0; i < 52; i++)
             {
-                Deck = RNG.Next(51);
-                Dump.Add(Deck);
-                    if (i == 0)
-                    {
-                     P1No[j] = Deck;
-                 
-                    }
-                    else
-                    {
-                     P2No[j] = Deck;
-                    }
-            } //End For
-            } //End For
-              //Check for duplications using player 1 and play 2 hands.
+                CardsAv.Add(i);
+            }
             for (int i = 0; i < 7; i++)
             {
-                for (int j = 0; j < 7; j++)
-                {
-                    for (int k = 0; k < Dump.Count; k++)
-                        {
-                        do
-                        {
-                        RC = RNG.Next(51);
-                        if (P1No[i] == P2No[j] || P2No[j] == Dump[k])
-                        {
-                        P2No[j] = RC;
-                        
-                        }
-                       } while (RC == Dump[k]);
-                    }//Next is to focus on and use this same method but adjust it for the detection of the possiable duplication   
-                } 
+                PlCard = RNG.Next(CardsAv.Count);
+                P1No[i] = CardsAv[PlCard];
+                CardsAv.RemoveAt(PlCard);
             }
-            for (int i = 0; i < 7; i++) //Player 1
+            for (int i = 0; i < 7; i++)
             {
-                for (int j = 0; j < 7; j++)
-                {
-                    RC = RNG.Next(51);
-                    if (P1No[i] == P1No[j] && i != j)
-                    {
-                        for (int k = 0; k <  Dump.Count; k++)
-                        {
-                            if (RC != Dump[k])
-                            {
-                                P1No[j] = RC;
-                                Dump.Add(RC);
-                            }
-                        }
-                    }
-                }
+                PlCard = RNG.Next(CardsAv.Count);
+                P2No[i] = CardsAv[PlCard];
+                CardsAv.RemoveAt(PlCard);
             }
-            for (int i = 0; i < 7; i++) //Player 2
-            {
-                for (int j = 0; j < 7; j++)
-                {
-                    RC = RNG.Next(51);
-                    if (P2No[i] == P2No[j] && i != j)
-                    {
-                        for (int k = 0; k < Dump.Count; k++)
-                        {
-                            if (RC != Dump[k])
-                            {
-                                P2No[j] = RC;
-                                Dump.Add(RC);
-                            }
-                        }
-                    }
-                }
-            }
-        } //End Sub
+        } //Pseudo-Code Written
         void PlayersCards(ref Cards[] DOC, Cards[] P1Cards, ref int[] P1No, ref int[] P2No, Cards[] P2Cards)
         {
             for (int PlayerNo = 0; PlayerNo < 2; PlayerNo++)
             {
-            for (int C = 0; C < 7; C++)
-            {
+                for (int C = 0; C < 7; C++)
+                {
                     if (PlayerNo == 0)
                     {
-                    P1Cards[C].House = DOC[P1No[C]].House;
-                    P1Cards[C].Image = DOC[P1No[C]].Image;
-                    P1Cards[C].Name = DOC[P1No[C]].Name;
-                    P1Cards[C].Location = new Point(30+(C*50),250);
-                    //P1Cards[C].Location = New point(<Insert Point Here>);    
+                        P1Cards[C].House = DOC[P1No[C]].House;
+                        P1Cards[C].Image = DOC[P1No[C]].Image;
+                        P1Cards[C].Name = DOC[P1No[C]].Name;
+                        P1Cards[C].Location = new Point(30 + (C * 50), 250);
+                        //P1Cards[C].Location = New point(<Insert Point Here>);    
                     }
                     else
                     {
-                    P2Cards[C].House = DOC[P2No[C]].House;
-                    P2Cards[C].Image = DOC[P2No[C]].Image;
-                    P2Cards[C].Name = DOC[P2No[C]].Name;
-                    P2Cards[C].Location = new Point(30+(C*50),20);
-
+                        P2Cards[C].House = DOC[P2No[C]].House;
+                        P2Cards[C].Image = DOC[P2No[C]].Image;
+                        P2Cards[C].Name = DOC[P2No[C]].Name;
+                        P2Cards[C].Location = new Point(30 + (C * 50), 20);
                         //P2Cards[C].Location = New point(<Insert Point Here>);    
                     } //End If
                 }//End For
             } //End For
-        } //End Sub
+
+        } //Pseudo-code Written
         void DeclareDeck(ref List<int> Deck, ref int[] P1No, ref int[] P2No) 
         {
-            int[] CardsHeld = new int[14];
+            int[] P1P2Com = new int[14];
             for (int i = 0; i < 14; i++)
             {
                 if (i < 7)
                 {
-                    CardsHeld[i] = P1No[i];
+                    P1P2Com[i] = P1No[i];
                 }
-                else
+                else if (i >= 7)
                 {
-                    CardsHeld[i] = P2No[i - 7];
+                    P1P2Com[i] = P2No[i - 7];
                 }
             }
-            for (int i = 0; i < 52; i++) //adds all of the cards
+            for (int i = 0; i < 52; i++)
             {
                 Deck.Add(i);
             }
@@ -331,30 +277,26 @@ namespace CardGame
             {
                 for (int j = 0; j < 52; j++)
                 {
-                    if (CardsHeld[i] == j)
+                    if (P1P2Com[i] == j)
                     {
-                        Deck.Remove(j); //removes the cards which have been used.
-                }
-
+                        Deck.Remove(j);
+                    }
                 }
             }
-        }
-        void DeckCards(ref Cards[] DOC,ref List<int> Deck, ref List<Cards> DeckDis)
+        } //Pseudo-Code Written
+        void DeckCards(ref Cards[] DOC, ref List<int> Deck, ref List<Cards> DeckDis)
         {
             for (int i = 0; i < Deck.Count; i++)
             {
-                DeckDis.Add(DOC[i]);
+                DeckDis.Add(DOC[Deck[i]]);
             }
-        }
-        void StackCards(ref List<int> Stack, ref List<Cards> StackDis, ref List<Cards> DeckDis, ref List<int> Deck, ref Cards[] DOC)
+        } //Pseudo-Code Written
+        void StackCards(ref List<int> Stack, ref List<Cards> StackDis, ref List<Cards> DeckDis, ref List<int> Deck, ref Cards[] DOC, ref Random RNG)
         {
+            int RNGCount = 0;
             int CurrentStack = 0;
-            for (int i = 0; i < Deck.Count; i++)
-            {
-            CurrentStack = Deck[i];
-            }
-                
-            
+            RNGCount = RNG.Next(Deck.Count);
+            CurrentStack = Deck[RNGCount];
             Stack.Add(CurrentStack);
             Deck.Remove(CurrentStack);
             StackDis.Add(DOC[CurrentStack]);
@@ -365,12 +307,772 @@ namespace CardGame
                 StackDis[i].Location = new Point(200, 130);
             }
             StackDis.ToList();
-        }
-
-        private void CmdTfs_Click(object sender, EventArgs e)
+        } //Pseudo-Code Written
+        void ComboStart(ref string[] NameHouse)
         {
+            for (int i = 0; i < 7; i++)
+            {
+                NAMEHOUSE[i] = P1Cards[i].Name + " " + P1Cards[i].House;
+                CmbCC.Items.Add(NAMEHOUSE[i]);
+            }
+        }
+        void ComboDecision(ref string[] NameHouse, ref Cards Limbo)
+        {
+            for (int i = 0; i < 8; i++)
+            {
+                CmbCC.Items.Remove(NAMEHOUSE[i]);
+            }
+            for (int i = 0; i < 8; i++)
+            {
+                if (i < 7)
+                {
+                    NAMEHOUSE[i] = P1Cards[i].Name + " " + P1Cards[i].House;
+                }
+                else
+                {
+                    NAMEHOUSE[i] = LimboCard.Name + " " + LimboCard.House;
+                }
+
+            }
+            for (int i = 0; i < 8; i++)
+            {
+                CmbCC.Items.Add(NAMEHOUSE[i]);
+            }
+        }
+        void CheckDeck(ref List<int> Stack, ref List<int> Deck, ref int ElementLim)
+        {
+            for (int i = 0; i < Stack.Count; i++)
+            {
+                do
+                {
+                    if (Deck[ElementLim] == Stack[i])
+                    {
+                        ElementLim = RNG.Next(Deck.Count);
+                        CheckDeck(ref Stack, ref Deck, ref ElementLim);
+                    }
+                } while (Deck[ElementLim] == Stack[i]);
+            }
+        } //Pseudo-Code Written
+        //Neural Network Subroutines for the Outputs for the first NN.
+        void NNTFD()
+        {
+            int ElementLim = 0;
+            if (Stack.Count == 38)
+            {
+                ElementLim = RNG.Next(Deck.Count);
+                for (int i = 0; i < 37; i++)
+                {
+                    Stack.RemoveAt(0);
+                    StackDis.RemoveAt(0);
+                }
+                MessageBox.Show("Suffle of cards");
+            }
+            CheckDeck(ref Stack, ref Deck, ref ElementLim);
+
+            Limbo = Deck[ElementLim];
+            LimboCard = DOC[Limbo];
+            LimboCard.Location = new Point(400, 250);
+            ComboDecision(ref NAMEHOUSE, ref LimboCard);
+            Bitmap bmp = new Bitmap(PicGame.Width, PicGame.Height);
+            using (Graphics g = Graphics.FromImage(bmp))
+            {
+                for (int i = 0; i < 7; i++)
+                {
+                    g.DrawImage(P1Cards[i].Image, P1Cards[i].Location.X, P1Cards[i].Location.Y, P1Cards[i].SizeY, P1Cards[i].SizeX);
+                    g.DrawImage(Back.Image, P2Cards[i].Location.X, P2Cards[i].Location.Y, P2Cards[i].SizeY, P2Cards[i].SizeX);
+                }
+                g.DrawImage(Back.Image, Back.Location.X, Back.Location.Y, Back.SizeY, Back.SizeX);
+                g.DrawImage(LimboCard.Image, LimboCard.Location.X, LimboCard.Location.Y, LimboCard.SizeY, LimboCard.SizeX);
+                for (int i = 0; i < Stack.Count; i++)
+                {
+                    g.DrawImage(StackDis[i].Image, StackDis[i].Location.X, StackDis[i].Location.Y, StackDis[i].SizeY, StackDis[i].SizeX);
+                }
+
+            }
+            PicGame.Image = bmp;
+            PkFmDk = false;
+            DeckVal = true;
+    }
+        void NNTFS()
+        {
+            Limbo = Stack[Stack.Count - 1];
+            LimboCard = StackDis[StackDis.Count - 1];
+            LimboCard.Location = new Point(400, 250);
+            Stack.Remove(Limbo);
+            StackDis.Remove(LimboCard);
+            Deck.Remove(Limbo);
+            DeckDis.Remove(LimboCard);
+            ComboDecision(ref NAMEHOUSE, ref LimboCard);
+
+            Bitmap bmp = new Bitmap(PicGame.Width, PicGame.Height);
+            using (Graphics g = Graphics.FromImage(bmp)) //Update the grid view display
+            {
+                for (int i = 0; i < 7; i++)
+                {
+                    g.DrawImage(P1Cards[i].Image, P1Cards[i].Location.X, P1Cards[i].Location.Y, P1Cards[i].SizeY, P1Cards[i].SizeX);
+                    g.DrawImage(Back.Image, P2Cards[i].Location.X, P2Cards[i].Location.Y, P2Cards[i].SizeY, P2Cards[i].SizeX);
+                }
+                for (int i = 0; i < Deck.Count; i++)
+                {
+                    g.DrawImage(Back.Image, DeckDis[i].Location.X, DeckDis[i].Location.Y, DeckDis[i].SizeY, DeckDis[i].SizeX);
+                }
+                for (int i = 0; i < Stack.Count; i++)
+                {
+                    g.DrawImage(StackDis[i].Image, StackDis[i].Location.X, StackDis[i].Location.Y, StackDis[i].SizeY, StackDis[i].SizeX);
+
+                }
+                g.DrawImage(LimboCard.Image, LimboCard.Location.X, LimboCard.Location.Y, LimboCard.SizeY, LimboCard.SizeX);
+
+            }
+            PicGame.Image = bmp;
+            PkFmDk = false;
 
         }
+        void Call()
+        {
+            Bitmap bmp = new Bitmap(PicGame.Width, PicGame.Height);
+            string Winner;
+            int[] CaUsed = new int[4];
+            int[] Ca3Used = new int[3];
+            int[] CaUsed2 = new int[4];
+            int[] Ca3Used2 = new int[4];
+            //Showing the player the rival players cards.
+            using (Graphics g = Graphics.FromImage(bmp))
+            {
+                for (int i = 0; i < 7; i++)
+                {
+                    g.DrawImage(P1Cards[i].Image, P1Cards[i].Location.X, P1Cards[i].Location.Y, P1Cards[i].SizeY, P1Cards[i].SizeX);
+                    g.DrawImage(P2Cards[i].Image, P2Cards[i].Location.X, P2Cards[i].Location.Y, P2Cards[i].SizeY, P2Cards[i].SizeX);
+                }
+                g.DrawImage(Back.Image, Back.Location.X, Back.Location.Y, Back.SizeY, Back.SizeX);
+
+                for (int i = 0; i < Stack.Count; i++)
+                {
+                    g.DrawImage(StackDis[i].Image, StackDis[i].Location.X, StackDis[i].Location.Y, StackDis[i].SizeY, StackDis[i].SizeX);
+                }
+
+            }
+            PicGame.Image = bmp;
+            //Need to find out how to stop the code from using the same cards again
+            ///Player 1 (The User)
+            ///4 Card run
+            for (int i = 0; i < 7; i++)
+            {
+                for (int j = 0; j < 52; j++)
+                {
+                    if (P1No[i] == j)
+                    {
+                        for (int l = 0; l < 7; l++)
+                        {
+                            for (int m = 0; m < 7; m++)
+                            {
+                                for (int p = 0; p < 7; p++)
+                                {
+                                    if ((P1No[l] == j + 1 && P1No[m] == j - 1 && P1No[p] == j + 2) && (j != 13 || j != 26 || j != 39))
+                                    {
+                                        Player1Points = Player1Points + (j % 13 + 1) + ((j % 13 + 1) - 1) + ((j % 13 + 1) + 1) + ((j % 13 + 1) + 2);
+                                        CaUsed[0] = j - 1;
+                                        CaUsed[1] = j;
+                                        CaUsed[2] = j + 1;
+                                        CaUsed[3] = j + 2;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            } //End of four card run
+
+            ///Three Card Run
+            for (int i = 0; i < 7; i++)
+            {
+                for (int j = 0; j < 52; j++)
+                {
+                    if (P1No[i] == j)
+                    {
+                        for (int l = 0; l < 7; l++)
+                        {
+                            for (int m = 0; m < 7; m++)
+                            {
+                                if ((P1No[l] == j + 1 && P1No[m] == j - 1) && (j != 13 || j != 26 || j != 39))
+                                {
+                                    if ((CaUsed[0] == P1No[m] || CaUsed[0] == P1No[i] || CaUsed[0] == P1No[l]) ||
+                                        (CaUsed[1] == P1No[m] || CaUsed[1] == P1No[i] || CaUsed[0] == P1No[l]) ||
+                                        (CaUsed[2] == P1No[m] || CaUsed[2] == P1No[i] || CaUsed[2] == P1No[l]) ||
+                                        (CaUsed[3] == P1No[m] || CaUsed[3] == P1No[i] || CaUsed[3] == P1No[l]))
+                                    { }
+                                    else
+                                    {
+                                        if ((Ca3Used[0] == P1No[m] || Ca3Used[0] == P1No[i] || Ca3Used[0] == P1No[l]) ||
+                                            (Ca3Used[1] == P1No[m] || Ca3Used[1] == P1No[i] || Ca3Used[1] == P1No[l]) ||
+                                            (Ca3Used[2] == P1No[m] || Ca3Used[2] == P1No[i] || Ca3Used[2] == P1No[l]))
+                                        {
+                                        }
+                                        else
+                                        {
+                                            Player1Points = Player1Points + (j % 13 + 1) + ((j % 13 + 1) + 1) + ((j % 13 + 1) - 1);
+                                            Ca3Used[0] = j - 1;
+                                            Ca3Used[1] = j;
+                                            Ca3Used[2] = j + 1;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }//End of three card run
+
+            ///Four card set for Player 1 or the User
+            //Start of 4 card set
+            for (int i = 0; i < 7; i++)
+            {
+                for (int j = 0; j < 52; j++)
+                {
+                    if (P1No[i] == j)
+                    {
+                        for (int l = 0; l < 7; l++)
+                        {
+                            for (int m = 0; m < 7; m++)
+                            {
+                                for (int p = 0; p < 7; p++)
+                                {
+                                    if (P1No[l] == j + 13 && P1No[m] == j - 13 && P1No[p] == j + 26)
+                                    {
+
+                                        if (j == 0 || j == 13 || j == 26 || j == 39)
+                                        {
+                                            Player1Points = Player1Points + 40;
+                                        }
+                                        {
+                                            Player1Points = Player1Points + (j % 13 + 1) + ((j % 13 + 1)) + ((j % 13 + 1)) + ((j % 13 + 1));
+                                            CaUsed[0] = j - 13;
+                                            CaUsed[1] = j;
+                                            CaUsed[2] = j + 13;
+                                            CaUsed[3] = j + 26;
+
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            } //End of four card set
+
+            for (int C1 = 0; C1 < 7; C1++)
+            {
+                for (int i = 0; i < 52; i++)
+                {
+                    if (P1No[C1] == i)
+                    {
+                        for (int C2 = 0; C2 < 7; C2++)
+                        {
+                            for (int C3 = 0; C3 < 7; C3++)
+                            { //Still need to validate this to make sure that it will not use any numbers for the 4 of a kinds and 4 runs. This will be used by the old three card set scorer.
+
+
+                                if ((P1No[C2] == i + 13 || P1No[C2] == i - 13 || P1No[C2] == i + 26 || P1No[C2] == i - 26 || P1No[C2] == i + 39 || P1No[C2] == i - 39)
+                                    && (P1No[C3] == i + 13 || P1No[C3] == i - 13 || P1No[C3] == i + 26 || P1No[C3] == i - 26 || P1No[C3] == i + 39 || P1No[C3] == i - 39)
+                                    && ((P1No[C3] != P1No[C2]) && (P1No[C1] != P1No[C2]) && (P1No[C1] != P1No[C3])))
+                                { //Need to make sure the odd cards can be halfed using a float. 
+                                    if ((CaUsed[0] == P1No[C1] || CaUsed[0] == P1No[C2] || CaUsed[0] == P1No[C3]) ||
+                                        (CaUsed[1] == P1No[C1] || CaUsed[1] == P1No[C2] || CaUsed[0] == P1No[C3]) ||
+                                        (CaUsed[2] == P1No[C1] || CaUsed[2] == P1No[C2] || CaUsed[2] == P1No[C3]) ||
+                                        (CaUsed[3] == P1No[C1] || CaUsed[3] == P1No[C2] || CaUsed[3] == P1No[C3]))
+                                    {
+                                    }
+                                    else
+                                    {
+                                        if ((Ca3Used[0] == P1No[C1] || Ca3Used[0] == P1No[C2] || Ca3Used[0] == P1No[C3]) ||
+                                           (Ca3Used[1] == P1No[C1] || Ca3Used[1] == P1No[C2] || Ca3Used[1] == P1No[C3]) ||
+                                           (Ca3Used[2] == P1No[C1] || Ca3Used[2] == P1No[C2] || Ca3Used[2] == P1No[C3]))
+                                        {
+                                        }
+                                        else
+                                        {
+                                            if (i == 0 || i == 13 || i == 26 || i == 39)
+                                            {
+                                                Player1Points = Player1Points + 30;
+                                            }
+                                            else
+                                            {
+                                                Player1Points = Player1Points + (i % 13 + 1) / 2f;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }//End of 3 of a kind.
+
+            //End of player 1
+
+            ///Player 2 (The Neural Network(s))
+            ///4 Card run
+            for (int i = 0; i < 7; i++)
+            {
+                for (int j = 0; j < 52; j++)
+                {
+                    if (P2No[i] == j)
+                    {
+                        for (int l = 0; l < 7; l++)
+                        {
+                            for (int m = 0; m < 7; m++)
+                            {
+                                for (int p = 0; p < 7; p++)
+                                {
+                                    if ((P2No[l] == j + 1 && P2No[m] == j - 1 && P2No[p] == j + 2) && (j != 13 || j != 26 || j != 39))
+                                    {
+                                        Player2Points = Player2Points + (j % 13 + 1) + ((j % 13 + 1) - 1) + ((j % 13 + 1) + 1) + ((j % 13 + 1) + 2);
+                                        CaUsed2[0] = j - 1;
+                                        CaUsed2[1] = j;
+                                        CaUsed2[2] = j + 1;
+                                        CaUsed2[3] = j + 2;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            } //End of four card run
+
+            ///Three Card Run
+            for (int i = 0; i < 7; i++)
+            {
+                for (int j = 0; j < 52; j++)
+                {
+                    if (P2No[i] == j)
+                    {
+                        for (int l = 0; l < 7; l++)
+                        {
+                            for (int m = 0; m < 7; m++)
+                            {
+                                if ((P2No[l] == j + 1 && P2No[m] == j - 1) && (j != 13 || j != 26 || j != 39))
+                                {
+                                    if ((CaUsed2[0] == P2No[m] || CaUsed2[0] == P2No[i] || CaUsed2[0] == P2No[l]) ||
+                                        (CaUsed2[1] == P2No[m] || CaUsed2[1] == P2No[i] || CaUsed2[0] == P2No[l]) ||
+                                        (CaUsed2[2] == P2No[m] || CaUsed2[2] == P2No[i] || CaUsed2[2] == P2No[l]) ||
+                                        (CaUsed2[3] == P2No[m] || CaUsed2[3] == P2No[i] || CaUsed2[3] == P2No[l]))
+                                    { }
+                                    else
+                                    {
+                                        if ((Ca3Used2[0] == P2No[m] || Ca3Used2[0] == P2No[i] || Ca3Used2[0] == P2No[l]) ||
+                                            (Ca3Used2[1] == P2No[m] || Ca3Used2[1] == P2No[i] || Ca3Used2[1] == P2No[l]) ||
+                                            (Ca3Used2[2] == P2No[m] || Ca3Used2[2] == P2No[i] || Ca3Used2[2] == P2No[l]))
+                                        {
+                                        }
+                                        else
+                                        {
+                                            Player2Points = Player2Points + (j % 13 + 1) + ((j % 13 + 1) + 1) + ((j % 13 + 1) - 1);
+                                            Ca3Used2[0] = j - 1;
+                                            Ca3Used2[1] = j;
+                                            Ca3Used2[2] = j + 1;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }//End of three card run
+
+            ///Four card set for Player 2
+            //Start of 4 card set
+            for (int i = 0; i < 7; i++)
+            {
+                for (int j = 0; j < 52; j++)
+                {
+                    if (P2No[i] == j)
+                    {
+                        for (int l = 0; l < 7; l++)
+                        {
+                            for (int m = 0; m < 7; m++)
+                            {
+                                for (int p = 0; p < 7; p++)
+                                {
+                                    if (P2No[l] == j + 13 && P2No[m] == j - 13 && P2No[p] == j + 26)
+                                    {
+                                        if ((Ca3Used2[0] == P2No[l] || Ca3Used2[0] == P2No[m] || Ca3Used2[0] == P2No[p]) ||
+                                          (Ca3Used2[1] == P2No[l] || Ca3Used2[1] == P2No[m] || Ca3Used2[1] == P2No[p]) ||
+                                          (Ca3Used2[2] == P2No[l] || Ca3Used2[2] == P2No[m] || Ca3Used2[2] == P2No[p]))
+                                        {
+                                        }
+                                        else
+                                        {
+                                            if (j == 0 || j == 13 || j == 26 || j == 39)
+                                            {
+                                                Player2Points = Player2Points + 40;
+                                            }
+                                            {
+                                                Player2Points = Player2Points + (j % 13 + 1) + ((j % 13 + 1)) + ((j % 13 + 1)) + ((j % 13 + 1));
+                                                CaUsed2[0] = j - 13;
+                                                CaUsed2[1] = j;
+                                                CaUsed2[2] = j + 13;
+                                                CaUsed2[3] = j + 26;
+
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            } //End of four card set
+
+            for (int C1 = 0; C1 < 7; C1++)
+            {
+                for (int i = 0; i < 52; i++)
+                {
+                    if (P2No[C1] == i)
+                    {
+                        for (int C2 = 0; C2 < 7; C2++)
+                        {
+                            for (int C3 = 0; C3 < 7; C3++)
+                            { //Still need to validate this to make sure that it will not use any numbers for the 4 of a kinds and 4 runs. This will be used by the old three card set scorer.
+
+
+                                if ((P2No[C2] == i + 13 || P2No[C2] == i - 13 || P2No[C2] == i + 26 || P2No[C2] == i - 26 || P2No[C2] == i + 39 || P2No[C2] == i - 39)
+                                    && (P2No[C3] == i + 13 || P2No[C3] == i - 13 || P2No[C3] == i + 26 || P2No[C3] == i - 26 || P2No[C3] == i + 39 || P2No[C3] == i - 39)
+                                    && ((P2No[C3] != P2No[C2]) && (P2No[C1] != P2No[C2]) && (P2No[C1] != P2No[C3])))
+                                {
+                                    if ((Ca3Used2[0] == P2No[C1] || Ca3Used2[0] == P2No[C2] || Ca3Used2[0] == P2No[C3]) ||
+                                           (Ca3Used2[1] == P2No[C1] || Ca3Used2[1] == P2No[C2] || Ca3Used2[1] == P2No[C3]) ||
+                                           (Ca3Used2[2] == P2No[C1] || Ca3Used2[2] == P2No[C2] || Ca3Used2[2] == P2No[C3]))
+                                    {
+                                    }
+                                    else
+                                    {
+                                        Player2Points = Player2Points + (i % 13 + 1) / 2f;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }//End of 3 of a kind.
+            //End of Player 2
+
+
+            ///Section for declaring the winner
+            ///This is the section which shows the Message box and thus ending the game, it also shows some statistics of what has happened in the game.
+            ///As well as showing who won the game and their points. This can be changed at a later date if it needs to.
+            if (Player1Points > Player2Points)
+            {
+                Winner = "Player 1 has won the game with " + Player1Points.ToString() + " points. With " + NoOfMoves + " Cards taken.";
+            }
+            else if (Player1Points < Player2Points)
+            {
+                Winner = "Player 2 has won the game with " + Player2Points.ToString() + " points. With " + NoOfMoves + " Cards taken.";
+            }
+            else
+            {
+                Winner = "The game was a tie with " + Player1Points.ToString() + " points each. With " + NoOfMoves + " Cards taken.";
+            }
+            MessageBox.Show(Winner);
+            this.Hide();
+            var Menu = new MMenu();
+            Menu.Show();
+        }
+        //Neural Network 1 for the three options: Call, Take from Deck or Stack.
+        private void CmdMenu_Click(object sender, EventArgs e)
+        {
+            this.Hide();
+            var Menu = new MMenu();
+            Menu.Show();
+        }
+        private void CmdPfd_Click(object sender, EventArgs e)
+        {//To renew the deck you need to remove from the deck, this will change the number inside of the list.
+            if (PkFmDk == true)
+            {
+                int ElementLim = RNG.Next(Deck.Count);
+                //If the stack has 38 elements then LCardDis (Card) LCard (Int) equals to last element in stack. 
+                //Stack.Remove all exept the last element and StackDis.Remove all exept the last element.
+                if (Stack.Count == 38)
+                {
+                    for (int i = 0; i < 37; i++)
+                    {
+                        Stack.RemoveAt(0);
+                        StackDis.RemoveAt(0);
+                    }
+                    MessageBox.Show("Suffle of cards");
+                }
+                CheckDeck(ref Stack, ref Deck, ref ElementLim);
+
+                Limbo = Deck[ElementLim];
+                LimboCard = DOC[Limbo];
+                LimboCard.Location = new Point(400, 250);
+                ComboDecision(ref NAMEHOUSE, ref LimboCard);
+                Bitmap bmp = new Bitmap(PicGame.Width, PicGame.Height);
+                using (Graphics g = Graphics.FromImage(bmp))
+                {
+                    for (int i = 0; i < 7; i++)
+                    {
+                        g.DrawImage(P1Cards[i].Image, P1Cards[i].Location.X, P1Cards[i].Location.Y, P1Cards[i].SizeY, P1Cards[i].SizeX);
+                        g.DrawImage(Back.Image, P2Cards[i].Location.X, P2Cards[i].Location.Y, P2Cards[i].SizeY, P2Cards[i].SizeX);
+                    }
+                    g.DrawImage(Back.Image, Back.Location.X, Back.Location.Y, Back.SizeY, Back.SizeX);
+                    g.DrawImage(LimboCard.Image, LimboCard.Location.X, LimboCard.Location.Y, LimboCard.SizeY, LimboCard.SizeX);
+                    for (int i = 0; i < Stack.Count; i++)
+                    {
+                        g.DrawImage(StackDis[i].Image, StackDis[i].Location.X, StackDis[i].Location.Y, StackDis[i].SizeY, StackDis[i].SizeX);
+                    }
+
+                }
+                PicGame.Image = bmp;
+                PkFmDk = false;
+                DeckVal = true;
+            }
+            else
+            {
+                MessageBox.Show("You need to select a card for you to put on the stack.");
+            }
+        }
+        private void CmdPfs_Click(object sender, EventArgs e)
+        {
+            if (PkFmDk == true)
+            {
+                Limbo = Stack[Stack.Count - 1];
+                LimboCard = StackDis[StackDis.Count - 1];
+                LimboCard.Location = new Point(400, 250);
+                Stack.Remove(Limbo);
+                StackDis.Remove(LimboCard);
+                Deck.Remove(Limbo);
+                DeckDis.Remove(LimboCard);
+                ComboDecision(ref NAMEHOUSE, ref LimboCard);
+
+                Bitmap bmp = new Bitmap(PicGame.Width, PicGame.Height);
+                using (Graphics g = Graphics.FromImage(bmp)) //Update the grid view display
+                {
+                    for (int i = 0; i < 7; i++)
+                    {
+                        g.DrawImage(P1Cards[i].Image, P1Cards[i].Location.X, P1Cards[i].Location.Y, P1Cards[i].SizeY, P1Cards[i].SizeX);
+                        g.DrawImage(Back.Image, P2Cards[i].Location.X, P2Cards[i].Location.Y, P2Cards[i].SizeY, P2Cards[i].SizeX);
+                    }
+                    for (int i = 0; i < Deck.Count; i++)
+                    {
+                        g.DrawImage(Back.Image, DeckDis[i].Location.X, DeckDis[i].Location.Y, DeckDis[i].SizeY, DeckDis[i].SizeX);
+                    }
+                    for (int i = 0; i < Stack.Count; i++)
+                    {
+                        g.DrawImage(StackDis[i].Image, StackDis[i].Location.X, StackDis[i].Location.Y, StackDis[i].SizeY, StackDis[i].SizeX);
+
+                    }
+                    g.DrawImage(LimboCard.Image, LimboCard.Location.X, LimboCard.Location.Y, LimboCard.SizeY, LimboCard.SizeX);
+
+                }
+                PicGame.Image = bmp;
+                PkFmDk = false;
+
+            }
+            else
+            {
+                MessageBox.Show("You need to select a card to put on the stack.");
+            }
+        }
+        private void CmdPcb_Click(object sender, EventArgs e)
+        {
+            Cards PickedDump = new Cards();
+            int PickedIntDump = 0;
+            string Value;
+            string Value2 = "";
+            string Value3 = "";
+            bool Split = false;
+            Bitmap bmp = new Bitmap(PicGame.Width, PicGame.Height);
+            if (PkFmDk == false)
+            {
+                Value = CmbCC.Text;
+                if (Value != "" && Value != PriorCardName)
+                {
+                    char[] Val = Value.ToCharArray();
+                    NoOfMoves++;
+                    for (int i = 0; i < Value.Length; i++)
+                    {
+                        if (Val[i] == char.Parse(" "))
+                        {
+                            Split = true;
+                        }
+                        if (Val[i] != char.Parse(" ") && Split == false)
+                        {
+                            Value2 += Val[i].ToString();
+                        }
+                        else if (Val[i] != char.Parse(" ") && Split == true)
+                        {
+                            Value3 += Val[i].ToString();
+                        }
+                    } //Finding the name and house of the limbo card which has been either taken from the deck or the stack.
+
+                    for (int j = 0; j < 7; j++)
+                    {
+                        if (P1Cards[j].Name == Value2 && P1Cards[j].House == Value3)
+                        {
+                            PickedDump = P1Cards[j]; //Picked dump is the card which will be moved from the hand.
+                            PickedIntDump = P1No[j];
+                        }
+                    }
+                    if (LimboCard.Name == Value2 && LimboCard.House == Value3)
+                    {
+                        PickedDump = LimboCard;
+                        PickedIntDump = Limbo;
+                    }
+
+                    PkFmDk = true;
+                    if (DeckVal == true)
+                    {
+                        DeckDis.Remove(LimboCard);
+                        Deck.Remove(Limbo);
+                    }
+
+                    Deck.Add(PickedIntDump);
+                    DeckDis.Add(PickedDump);
+                    if (PickedDump == LimboCard)
+                    {
+
+                        StackDis.Add(LimboCard);
+                        Stack.Add(Limbo);
+                        for (int i = 0; i < Stack.Count; i++)
+                        {
+                            StackDis[i].Location = new Point(200, 130);
+                        }
+                    }
+                    else if (PickedDump == P1Cards[0])
+                    {
+                        StackDis.Add(P1Cards[0]);
+                        Stack.Add(P1No[0]);
+                        for (int i = 0; i < Stack.Count; i++)
+                        {
+                            StackDis[i].Location = new Point(200, 130);
+                        }
+                        P1No[0] = Limbo;
+                        P1Cards[0] = LimboCard;
+                        P1Cards[0].Location = new Point(30, 250);
+                    }
+                    else if (PickedDump == P1Cards[1])
+                    {
+                        StackDis.Add(P1Cards[1]);
+                        Stack.Add(P1No[1]);
+                        for (int i = 0; i < Stack.Count; i++)
+                        {
+                            StackDis[i].Location = new Point(200, 130);
+                        }
+                        P1No[1] = Limbo;
+                        P1Cards[1] = LimboCard;
+                        P1Cards[1].Location = new Point(80, 250);
+                    }
+                    else if (PickedDump == P1Cards[2])
+                    {
+                        StackDis.Add(P1Cards[2]);
+                        Stack.Add(P1No[2]);
+                        for (int i = 0; i < Stack.Count; i++)
+                        {
+                            StackDis[i].Location = new Point(200, 130);
+                        }
+                        P1No[2] = Limbo;
+                        P1Cards[2] = LimboCard;
+                        P1Cards[2].Location = new Point(130, 250);
+                    }
+                    else if (PickedDump == P1Cards[3])
+                    {
+                        StackDis.Add(P1Cards[3]);
+                        Stack.Add(P1No[3]);
+                        for (int i = 0; i < Stack.Count; i++)
+                        {
+                            StackDis[i].Location = new Point(200, 130);
+                        }
+                        P1No[3] = Limbo;
+                        P1Cards[3] = LimboCard;
+                        P1Cards[3].Location = new Point(180, 250);
+                    }
+                    else if (PickedDump == P1Cards[4])
+                    {
+                        StackDis.Add(P1Cards[4]);
+                        Stack.Add(P1No[4]);
+                        for (int i = 0; i < Stack.Count; i++)
+                        {
+                            StackDis[i].Location = new Point(200, 130);
+                        }
+                        P1No[4] = Limbo;
+                        P1Cards[4] = LimboCard;
+                        P1Cards[4].Location = new Point(230, 250);
+                    }
+                    else if (PickedDump == P1Cards[5])
+                    {
+                        StackDis.Add(P1Cards[5]);
+                        Stack.Add(P1No[5]);
+                        for (int i = 0; i < Stack.Count; i++)
+                        {
+                            StackDis[i].Location = new Point(200, 130);
+                        }
+                        P1No[5] = Limbo;
+                        P1Cards[5] = LimboCard;
+                        P1Cards[5].Location = new Point(280, 250);
+                    }
+                    else if (PickedDump == P1Cards[6])
+                    {
+                        StackDis.Add(P1Cards[6]);
+                        Stack.Add(P1No[6]);
+                        for (int i = 0; i < Stack.Count; i++)
+                        {
+                            StackDis[i].Location = new Point(200, 130);
+                        }
+                        P1No[6] = Limbo;
+                        P1Cards[6] = LimboCard;
+                        P1Cards[6].Location = new Point(330, 250);
+                    }
+                    //Needs to be the P1 card which is moved.
+
+                    using (Graphics g = Graphics.FromImage(bmp))
+                    {
+                        g.DrawImage(LimboCard.Image, LimboCard.Location.X, LimboCard.Location.Y, LimboCard.SizeY, LimboCard.SizeX);
+                        for (int i = 0; i < 7; i++)
+                        {
+                            g.DrawImage(P1Cards[i].Image, P1Cards[i].Location.X, P1Cards[i].Location.Y, P1Cards[i].SizeY, P1Cards[i].SizeX);
+                            g.DrawImage(Back.Image, P2Cards[i].Location.X, P2Cards[i].Location.Y, P2Cards[i].SizeY, P2Cards[i].SizeX);
+                        }
+                        g.DrawImage(Back.Image, Back.Location.X, Back.Location.Y, Back.SizeY, Back.SizeX);
+                        for (int i = 0; i < Stack.Count; i++)
+                        {
+                            g.DrawImage(StackDis[i].Image, StackDis[i].Location.X, StackDis[i].Location.Y, StackDis[i].SizeY, StackDis[i].SizeX);
+
+                        }
+                    }
+                    PicGame.Image = bmp;
+                    PriorCardName = Value;
+                    DeckVal = false;
+                    //NN Start
+                    //float[] P2NNN = new float[8];
+                    //for (int i = 0; i < 8; i++)
+                    //{
+                      //  if (i < 7)
+                        //{
+                          //  P2NNN[i] = (float)P2No[i] / 100;
+                        //}
+                        //else if (i == 7)
+                        //{
+                         //   P2NNN[i] = (float)Limbo / 100;
+                        //}
+                    //}
+                    //NN.FeedForward(P2NNN);
+                    //NN.Mutate();
+                }
+                else
+                {
+                    PkFmDk = false;
+                }
+            }
+            else
+            {
+                MessageBox.Show("You need to take a card from either the Stack or the Deck.");
+            }
+        }//Used for the point for the NN's turn at playing.
+        private void CmdCall_Click(object sender, EventArgs e)
+        {//This will work by displaying player 2's last turn and then showing the user player 2's cards.
+            Call();
+        }
     }
-    }
+}
+
 
