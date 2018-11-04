@@ -37,156 +37,6 @@ namespace CardGame
      network suggesting that the this will be the best and most efficent way to train the NN to give a good success rate.
      Outputs for the desitions of which card to remove from their hand or the limbo card acting as the put card on stack button which is used for player 1 (the user).*/
     #endregion
-    //class NeuralFactor
-    //{
-    //    private double _weight;
-    //    private double _delta;
-    //    private double _pridelta;
-    //    //Constructor
-    //    public NeuralFactor(Double Weights)
-    //    {
-    //        _weight = Weights;
-    //        _delta = 0;
-    //        _pridelta = _delta;
-    //    }
-    //    //Get and Sets
-    //    public double Weight
-    //    {
-    //        get { return _weight; }
-    //        set { _weight = value; }
-    //    }
-    //    public double Delta
-    //    {
-    //        get { return _delta; }
-    //        set { _delta = value; }
-    //    }
-    //    public double PriDelta
-    //    {
-    //        get { return _pridelta; }
-    //        set { _pridelta = value; }
-    //    }
-    //    //Methods
-    //    public void WeightChange(ref double LR)
-    //    {
-    //        _pridelta = _delta;
-    //        _weight += _delta * LR;
-    //    }
-    //    public void ResetWeight()
-    //    {
-    //        _pridelta = 0;
-    //        _pridelta = _delta;
-    //    }
-
-    //}
-    //public interface INeuronReceptor
-    //{
-    //    Dictionary<INeuronSignal, NeuralFactor> Input { get;  }
-    //}
-    //public interface INeuronSignal
-    //{
-    //    double Output { get; set; }
-    //}
-    //public interface INeuron : INeuronSignal, INeuronReceptor
-    //{
-    //    void Pulse(INeuralLayer layer);
-    //    void ApplyLearning(INeuralLayer layer, ref double LR);
-    //    void InitiateLearning(INeuralLayer layer);
-
-    //    NeuralFactor Bias { get; set; }
-    //    double Error { get; set; }
-    //    double PriError { get; set; }
-    //}
-    //public interface INeuralLayer : IList<INeuron>
-    //{
-    //    void Pulse(INeuralNet net);
-    //    void ApplyLearning(INeuralNet net);
-    //    void InitiateLearning(INeuralNet net);
-    //}
-    //public interface INeuralNet
-    //{
-    //    NeuralLayer InputLayer { get;}
-    //    NeuralLayer HiddenLayer { get; }
-    //    NeuralLayer OutputLayer { get; }
-    //    double LR { get; set; }
-    //    void Pulse();
-    //    void ApplyLearning();
-    //    void InitiateLearning();
-    //}
-    //public class Neuron : INeuron
-    //{
-    //    //Constructors
-    //    public Neuron(double Bias)
-    //    {
-    //        _bias = new NeuralFactor(Bias);
-    //        _error = 0;
-    //        _input = new Dictionary<NeuronSignal, NeuralFactor>();
-    //    }
-    //    private Dictionary<NeuronSignal, NeuralFactor> _input;
-    //    double _Output;
-    //    double _error;
-    //    double _PriError;
-    //    NeuralFactor _bias;
-
-    //    public double Output
-    //    {
-    //        get { return _Output; }
-    //        set { _Output = value; }
-    //    }
-    //    public Dictionary<NeuronSignal, NeuralFactor> input
-    //    {
-    //        get { return _input; }
-    //    }
-    //    public Pulse(NeuralLayer layer)
-    //    {
-    //        lock (this)
-    //        {
-    //            _Output = 0;
-    //            foreach (KeyValuePair<NeuronSignal, NeuralFactor> item in _input)
-    //                _Output += item.Key.Output * item.Value.Weight;
-
-    //            _Output += _bias.Weight;
-
-    //            _Output = SigFunction(_Output);
-    //        }
-    //    }
-    //    public NeuralFactor Bias
-    //    {
-    //        get { return _bias; }
-    //        set { _bias = value; }
-    //    }
-    //    public double Error
-    //    {
-    //        get { return _error; }
-    //        set { _PriError = _error; _error = value; }
-    //    }
-    //    public void ApplyedLearning(NeuralLayer layer, ref double LR)
-    //    {
-    //        foreach (KeyValuePair<NeuronSignal, NeuralFactor> m in _input)
-    //            m.Value.WeightChange(ref LR);
-
-    //        _bias.WeightChange(ref LR);
-    //    }
-    //   public void InitializeLearning(NeuralLayer layer)
-    //    {
-    //        foreach (KeyValuePair<NeuronSignal, NeuralFactor> i in _input)
-    //            i.Value.ResetWeight();
-
-    //        _bias.ResetWeight();
-    //    }
-    //    public double LastError
-    //    {
-    //        get { return _PriError; }
-    //        set { _PriError = value; }
-    //    }
-    //    public static double SigFunction(double value)
-    //    {
-    //        return 1 / (1 + Math.Exp(-value));
-    //    }
-
-    //}
-    //public class NeuralLayer : INeuralLayer
-    //{
-    //}
 
     public enum TrainingType
     {
@@ -280,7 +130,7 @@ namespace CardGame
 
     public interface INeuralNet
     {
-        INeuralLayer PerceptionLayer { get; }
+        INeuralLayer InputLayer { get; }
         INeuralLayer HiddenLayer { get; }
         INeuralLayer OutputLayer { get; }
 
@@ -544,7 +394,7 @@ namespace CardGame
 
         #region INeuralNet Members
 
-        public INeuralLayer PerceptionLayer
+        public INeuralLayer InputLayer
         {
             get { return m_inputLayer; }
         }

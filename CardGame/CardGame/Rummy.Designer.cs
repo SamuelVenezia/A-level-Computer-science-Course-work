@@ -40,6 +40,7 @@
             this.CmbCC = new System.Windows.Forms.ComboBox();
             this.lblRc = new System.Windows.Forms.Label();
             this.CmdMenu = new System.Windows.Forms.Button();
+            this.btnTNN = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.PicGame)).BeginInit();
             this.SuspendLayout();
             // 
@@ -165,6 +166,17 @@
             this.CmdMenu.UseVisualStyleBackColor = true;
             this.CmdMenu.Click += new System.EventHandler(this.CmdMenu_Click);
             // 
+            // btnTNN
+            // 
+            this.btnTNN.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
+            this.btnTNN.Location = new System.Drawing.Point(545, 377);
+            this.btnTNN.Name = "btnTNN";
+            this.btnTNN.Size = new System.Drawing.Size(131, 23);
+            this.btnTNN.TabIndex = 11;
+            this.btnTNN.Text = "Train Neural Network";
+            this.btnTNN.UseVisualStyleBackColor = false;
+            this.btnTNN.Click += new System.EventHandler(this.btnTNN_Click);
+            // 
             // Rummy
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -173,6 +185,7 @@
             this.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("$this.BackgroundImage")));
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.ClientSize = new System.Drawing.Size(765, 423);
+            this.Controls.Add(this.btnTNN);
             this.Controls.Add(this.CmdMenu);
             this.Controls.Add(this.lblRc);
             this.Controls.Add(this.CmbCC);
@@ -205,5 +218,6 @@
         private System.Windows.Forms.Label lblRc;
         private System.Windows.Forms.ComboBox CmbCC;
         private System.Windows.Forms.Button CmdMenu;
+        private System.Windows.Forms.Button btnTNN;
     }
 }

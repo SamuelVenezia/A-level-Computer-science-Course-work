@@ -7,12 +7,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.IO;
 
 namespace CardGame
 {
     public partial class Rummy : Form
     {
-       // NeuralNetwork NN;
+        // NeuralNetwork NN;
+        NeuralNet net1 = new NeuralNet();
         Random RNG = new Random();
         Cards[] DOC = new Cards[52];
         Cards[] P1Cards = new Cards[7];
@@ -33,6 +35,7 @@ namespace CardGame
         float Player2Points;
         bool PkFmDk = true;
         bool DeckVal = false;
+        int FirstButton = 4;
         public Rummy()
         {
 
@@ -206,6 +209,44 @@ namespace CardGame
             DOC[49].Image = Properties.Resources.JackSpades;
             DOC[50].Image = Properties.Resources.QueenSpades;
             DOC[51].Image = Properties.Resources.KingSpades;
+            net1.Initialize(1,52,16,3);
+            foreach (Neuron on in net1.OutputLayer)
+                using (StreamReader CurrentFile = new StreamReader("Net1.txt"))
+                {
+                    CurrentFile.ReadLine(); //Neuron
+                    CurrentFile.ReadLine(); //Output
+                    CurrentFile.ReadLine(); //Error
+                    CurrentFile.ReadLine(); //Bias
+                    CurrentFile.ReadLine(); //Input
+       //             net1.HiddenLayer[0].Input[on].Weight = double.Parse(CurrentFile.ReadLine()); //Value
+                    foreach (KeyValuePair<INeuronSignal, NeuralFactor> f in on.Input)
+                    {
+                        net1.HiddenLayer[0].Input[on].Weight = double.Parse(CurrentFile.ReadLine()); //Weight 
+                        //CurrentFile.WriteLine(bld.Append("input ").Append(i++ + Environment.NewLine));
+                        //CurrentFile.WriteLine(bld /*.Append("value = ")*/.Append(f.Key.Output + Environment.NewLine)); //Value
+                        //CurrentFile.WriteLine(bld/*.Append("weight = ")*/.Append(f.Value.Weight + Environment.NewLine)); //Weight
+                        //value += f.Value.Weight * f.Key.Output;
+                    }
+                }
+            //using (StreamWriter CurrentFile = new StreamWriter("Net1.txt"))
+            //{
+            //    CurrentFile.WriteLine(bld.Append("Neuron" + Environment.NewLine));
+            //    CurrentFile.WriteLine(bld.Append("output: ").Append(neuron.Output.ToString() + Environment.NewLine));
+            //    CurrentFile.WriteLine(bld.Append("error: ").Append(neuron.Error.ToString() + Environment.NewLine));
+            //    CurrentFile.WriteLine(bld.Append("last error:").Append(neuron.LastError.ToString() + Environment.NewLine));
+            //    CurrentFile.WriteLine(bld.Append("bias: ").Append(neuron.Bias.Weight.ToString() + Environment.NewLine));
+            //    foreach (KeyValuePair<INeuronSignal, NeuralFactor> f in neuron.Input)
+            //    {
+            //        CurrentFile.WriteLine(bld.Append("input ").Append(i++ + Environment.NewLine));
+            //        CurrentFile.WriteLine(bld /*.Append("value = ")*/.Append(f.Key.Output + Environment.NewLine)); //Value
+            //        CurrentFile.WriteLine(bld/*.Append("weight = ")*/.Append(f.Value.Weight + Environment.NewLine)); //Weight
+            //        value += f.Value.Weight * f.Key.Output;
+            //    }
+            //    CurrentFile.WriteLine(bld.Append("parent.bias = ").Append(neuron.Bias.Weight + Environment.NewLine));
+            //    CurrentFile.WriteLine(bld.Append("sigmoid=").Append(Neuron.Sigmoid(value + neuron.Bias.Weight) + Environment.NewLine));
+
+            //}
+            //Neural Net Reading Into The Program
         } //Pseudo-Code Written
         void DecPlayerCards(ref int[] P1No, ref int[] P2No)
         {
@@ -436,6 +477,7 @@ namespace CardGame
             int[] Ca3Used = new int[3];
             int[] CaUsed2 = new int[4];
             int[] Ca3Used2 = new int[4];
+            FirstButton = 0;
             //Showing the player the rival players cards.
             using (Graphics g = Graphics.FromImage(bmp))
             {
@@ -788,6 +830,7 @@ namespace CardGame
         {//To renew the deck you need to remove from the deck, this will change the number inside of the list.
             if (PkFmDk == true)
             {
+                FirstButton = 1;
                 int ElementLim = RNG.Next(Deck.Count);
                 //If the stack has 38 elements then LCardDis (Card) LCard (Int) equals to last element in stack. 
                 //Stack.Remove all exept the last element and StackDis.Remove all exept the last element.
@@ -835,6 +878,7 @@ namespace CardGame
         {
             if (PkFmDk == true)
             {
+                FirstButton = 2;
                 Limbo = Stack[Stack.Count - 1];
                 LimboCard = StackDis[StackDis.Count - 1];
                 LimboCard.Location = new Point(400, 250);
@@ -1043,20 +1087,8 @@ namespace CardGame
                     PriorCardName = Value;
                     DeckVal = false;
                     //NN Start
-                    //float[] P2NNN = new float[8];
-                    //for (int i = 0; i < 8; i++)
-                    //{
-                      //  if (i < 7)
-                        //{
-                          //  P2NNN[i] = (float)P2No[i] / 100;
-                        //}
-                        //else if (i == 7)
-                        //{
-                         //   P2NNN[i] = (float)Limbo / 100;
-                        //}
-                    //}
-                    //NN.FeedForward(P2NNN);
-                    //NN.Mutate();
+                    DecitionP2();
+                    //First Button
                 }
                 else
                 {
@@ -1068,9 +1100,182 @@ namespace CardGame
                 MessageBox.Show("You need to take a card from either the Stack or the Deck.");
             }
         }//Used for the point for the NN's turn at playing.
+
         private void CmdCall_Click(object sender, EventArgs e)
         {//This will work by displaying player 2's last turn and then showing the user player 2's cards.
             Call();
+        }
+        void DecitionP2()
+        {
+            if ((net1.OutputLayer[0].Output > net1.OutputLayer[1].Output && net1.OutputLayer[0].Output > net1.OutputLayer[2].Output) || net1.OutputLayer[0].Output > 0.5)
+            {
+                //Call
+                Call();
+            }
+            else if (net1.OutputLayer[1].Output > net1.OutputLayer[0].Output && net1.OutputLayer[1].Output > net1.OutputLayer[2].Output)
+            {
+                //Pick from Deck
+                NNTFD();
+            }
+            else if (net1.OutputLayer[2].Output > net1.OutputLayer[0].Output && net1.OutputLayer[2].Output > net1.OutputLayer[1].Output)
+            {
+                //Pick From Stack
+                NNTFS();
+            }
+            //Next Decition and Part
+        }
+
+        private void btnTNN_Click(object sender, EventArgs e)
+        {
+            double High = 0.99;
+            double Low = 0.01;
+            //For output values.
+            double Choice1 = 0.5;
+            double Choice2 = 0.5;
+            double Choice3 = 0.5;
+            StringBuilder bld = new StringBuilder();
+            int Iterations = 1;
+       
+            //Options Change.
+            if (FirstButton == 0)
+            {
+                Choice1 = High;
+                Choice2 = Low;
+                Choice3 = Low;
+            }
+            else if (FirstButton == 1)
+            {
+                Choice1 = Low;
+                Choice2 = High;
+                Choice3 = Low;
+            }
+            else if (FirstButton == 2)
+            {
+                Choice1 = Low;
+                Choice2 = Low;
+                Choice3 = High;
+            }
+            
+            Stack.ToList();
+            double[][] input, output;
+            net1.Initialize(1,52,16,3);
+            double[] PlayerHL;
+            //This will make it easier to determine between them compaired to the current way of doint it.
+            PlayerHL = new double[52];
+            Stack.ToArray();
+            for (int i = 0; i < 52; i++)
+            {
+                PlayerHL[i] = Low;
+            }  //Defults the Player High/Low to Low, this will then change if the card is being used.
+
+            for (int i = 0; i < 7; i++)
+            {
+                for (int j = 0; j < 52; j++)
+                {
+                    if (P1No[i] == j)
+                    {
+                        PlayerHL[j] = High;
+                    }
+                    else if ( Limbo == j)
+                    {
+                        PlayerHL[j] = High;
+                    }
+                }
+                
+            }
+            Stack.ToList();
+            //Inputs
+            input = new double[1][]; //52 inputs, the cards will then have either a poitivve 1 if they are active or a o if they are not.
+            input[0] = new double[] { PlayerHL[0], PlayerHL[1], PlayerHL[2], PlayerHL[3], PlayerHL[4], PlayerHL[5], PlayerHL[6], PlayerHL[7], PlayerHL[8], PlayerHL[9], PlayerHL[10], PlayerHL[11], PlayerHL[12],
+                                      PlayerHL[13], PlayerHL[14], PlayerHL[15], PlayerHL[16], PlayerHL[17], PlayerHL[18], PlayerHL[19], PlayerHL[20], PlayerHL[21], PlayerHL[22], PlayerHL[23], PlayerHL[24], PlayerHL[25],
+                                      PlayerHL[26], PlayerHL[27], PlayerHL[28], PlayerHL[29], PlayerHL[30], PlayerHL[31], PlayerHL[32], PlayerHL[33], PlayerHL[34], PlayerHL[35], PlayerHL[36], PlayerHL[37], PlayerHL[38],
+                                      PlayerHL[39], PlayerHL[40], PlayerHL[41], PlayerHL[42], PlayerHL[43], PlayerHL[44], PlayerHL[45], PlayerHL[46], PlayerHL[47], PlayerHL[48], PlayerHL[49], PlayerHL[50], PlayerHL[51]};
+            Stack.ToList();
+            //Outputs
+            output = new double[1][];
+            output[0] = new double[] {Choice1, Choice2, Choice3}; //Choice 1,2,3
+
+            //Initialize with
+            //52 input neurons
+            //16 hidden neurons
+            //3 output neurons
+            net1.LearningRate = 3;
+
+
+            net1.Train(input, output, TrainingType.BackPropogation, Iterations);
+            net1.ApplyLearning();
+                for (int i = 0; i < 52; i++)
+                {
+                    net1.InputLayer[i].Output = PlayerHL[i];
+                }
+
+                net1.Pulse();
+
+                Choice1 = net1.OutputLayer[0].Output; //Choice 1
+
+                for (int i = 0; i < 52; i++)
+                {
+                    net1.InputLayer[i].Output = PlayerHL[i];
+                }
+
+                net1.Pulse();
+
+                Choice2 = net1.OutputLayer[0].Output; //Choice 2
+
+                for (int i = 0; i < 52; i++)
+                {
+                    net1.InputLayer[i].Output = PlayerHL[i];
+                }
+
+                net1.Pulse();
+
+                Choice3 = net1.OutputLayer[0].Output; //Choice 3
+
+            foreach (Neuron on in net1.OutputLayer)     
+
+                AppendNeuronInfo(bld, on);
+
+        }
+        private static void AppendNeuronInfo(StringBuilder bld, INeuron neuron)
+        {
+            #region Declarations
+
+            int i;
+            double value;
+
+            #endregion
+
+            #region Initialization
+
+            i = 1;
+            value = 0;
+
+            #endregion
+
+            #region Execution
+            using (StreamWriter CurrentFile = new StreamWriter("Net1.txt"))
+            {
+                CurrentFile.WriteLine(bld.Append("Neuron" + Environment.NewLine));
+                CurrentFile.WriteLine(bld.Append("output: ").Append(neuron.Output.ToString()+ Environment.NewLine));
+                CurrentFile.WriteLine(bld.Append("error: ").Append(neuron.Error.ToString()+ Environment.NewLine));
+                CurrentFile.WriteLine(bld.Append("last error:").Append(neuron.LastError.ToString() + Environment.NewLine));
+                CurrentFile.WriteLine(bld.Append("bias: ").Append(neuron.Bias.Weight.ToString() + Environment.NewLine));
+                foreach (KeyValuePair<INeuronSignal, NeuralFactor> f in neuron.Input)
+                {
+                    CurrentFile.WriteLine(bld.Append("input ").Append(i++ + Environment.NewLine));          
+                    CurrentFile.WriteLine(bld /*.Append("value = ")*/.Append(f.Key.Output + Environment.NewLine)); //Value
+                    CurrentFile.WriteLine(bld/*.Append("weight = ")*/.Append(f.Value.Weight+ Environment.NewLine)); //Weight
+                    value += f.Value.Weight * f.Key.Output;
+                }
+                CurrentFile.WriteLine(bld.Append("parent.bias = ").Append(neuron.Bias.Weight + Environment.NewLine));
+                CurrentFile.WriteLine(bld.Append("sigmoid=").Append(Neuron.Sigmoid(value + neuron.Bias.Weight) + Environment.NewLine));
+            
+            }
+           
+
+            #endregion
+
+
         }
     }
 }
