@@ -9,30 +9,30 @@ namespace CardGame
     #region NNDesign
     //Neural Network 1 design
     //Inputs        Hidden Layer       Outputs
-    //  0       |                   |      
-    //  1       |                   |      0
-    //  2       |                   |      
-    //  3       |                   |      
-    //  4       |                   |      1
-    //  5       |                   |      
-    //  6       |                   |      
-    //  7       |                   |      2
-    /*8 inputs 7 hand cards and 1 stack card.
+    //  0        |                   |      
+    //  1        |                   |      0
+    //  2        |                   |      
+    //  .        |                   |      
+    //  .        |                   |      1
+    //  .        |                   |      
+    //  50       |                   |      
+    //  51       |                   |      2
+    /*52 inputs
      Hidden layer has 16 neurons in it, I am going to put 16 due to my research for the Neural
      network suggesting that the this will be the best and most efficent way to train the NN to give a good success rate.
      Outputs for the desitions to pick from the deck, stack or to call (thus ending the game).*/
     // Neural Network 2 design
     //Inputs        Hidden Layer       Outputs
-    //  0       |                   |      0
-    //  1       |                   |      1
-    //  2       |                   |      2
-    //  3       |                   |      3
-    //  4       |                   |      4
-    //  5       |                   |      5
-    //  6       |                   |      6
-    //  7       |                   |      7
-    //  8       |                   |      8
-    /*8 inputs 7 hand cards and 1 from either the deck or the stack depending what the output of the first NN is.
+    //  0        |                   |      0
+    //  1        |                   |      1
+    //  2        |                   |      2
+    //  .        |                   |      3
+    //  .        |                   |      4
+    //  .        |                   |      5
+    //  49       |                   |      6
+    //  50       |                   |      7
+    //  51       |                   |      8
+    /*52 inputs 7 hand cards and 1 from either the deck or the stack depending what the output of the first NN is.
      Hidden layer has 1 layer and 16 neurons, I am going to put 16 due to my research for the Neural
      network suggesting that the this will be the best and most efficent way to train the NN to give a good success rate.
      Outputs for the desitions of which card to remove from their hand or the limbo card acting as the put card on stack button which is used for player 1 (the user).*/

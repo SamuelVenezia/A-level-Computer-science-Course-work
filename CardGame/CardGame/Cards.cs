@@ -11,6 +11,8 @@ namespace CardGame
     {//Attributes of the Cards
         protected string _Name;
         protected string _House;
+        protected int _Number;
+        protected int _Score;
         protected int _SizeY;
         protected int _SizeX;
         protected Point _Location;
@@ -25,6 +27,16 @@ namespace CardGame
         {
             get { return _House; }
             set { _House = value; }
+        }
+        public int Number
+        {
+            get { return _Number; }
+            set { _Number = value;}
+        }
+        public int Score
+        {
+            get { return _Score; }
+            set { _Score = value; }
         }
         public int SizeY
         {
@@ -51,6 +63,8 @@ namespace CardGame
             _SizeX = 85;
             _Name = Name;
             _House = House;
+            _Number = Number;
+            _Score = Score;
             _Location = new Point(120,130);
         }
     }
